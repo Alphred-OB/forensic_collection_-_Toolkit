@@ -36,6 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/cases/{id}/team', [CaseController::class, 'updateTeam'])->name('cases.update-team');
     Route::post('/cases/{id}/status', [CaseController::class, 'updateStatus'])->name('cases.update-status');
     Route::post('/cases/{id}/close', [CaseController::class, 'close'])->name('cases.close');
+    Route::post('/cases/{id}/notes', [CaseController::class, 'storeNote'])->name('cases.notes.store');
 
     // Evidence Routes
     Route::get('/cases/{caseId}/evidence/create', [EvidenceController::class, 'create'])->name('evidence.create');

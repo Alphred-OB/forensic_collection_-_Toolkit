@@ -88,11 +88,48 @@ class EvidenceController extends Controller
             'exists_on_disk' => false,
         ];
 
+        $hexData = [];
+        $exifData = [];
+
         if (Storage::disk('local')->exists($evidence->file_path)) {
             $physicalPath = Storage::disk('local')->path($evidence->file_path);
             $fileMetadata['exists_on_disk'] = true;
             $fileMetadata['mime_type'] = Storage::disk('local')->mimeType($evidence->file_path) ?: 'application/octet-stream';
             $fileMetadata['last_modified'] = date('Y-m-d H:i:s', Storage::disk('local')->lastModified($evidence->file_path));
+
+            // Generate Hex Dump (First 512 bytes)
+            $handle = fopen($physicalPath, 'rb');
+            if ($handle) {
+                $rawChunk = fread($handle, 512);
+                fclose($handle);
+
+                for ($offset = 0; $offset < strlen($rawChunk); $offset += 16) {
+                    $slice = substr($rawChunk, $offset, 16);
+                    $hexBytes = [];
+                    $asciiBytes = '';
+
+                    for ($i = 0; $i < strlen($slice); $i++) {
+                        $byte = ord($slice[$i]);
+                        $hexBytes[] = sprintf('%02X', $byte);
+                        $asciiBytes .= ($byte >= 32 && $byte <= 126) ? chr($byte) : '.';
+                    }
+
+                    $hexData[] = [
+                        'offset' => sprintf('%08X', $offset),
+                        'hex' => implode(' ', $hexBytes),
+                        'ascii' => $asciiBytes,
+                    ];
+                }
+            }
+
+            // Extract Image Dimensions / EXIF if image
+            if (str_starts_with($fileMetadata['mime_type'], 'image/')) {
+                $sizeInfo = @getimagesize($physicalPath);
+                if ($sizeInfo) {
+                    $exifData['Image Dimensions'] = $sizeInfo[0] . ' x ' . $sizeInfo[1] . ' pixels';
+                    $exifData['Bits / Color Channel'] = ($sizeInfo['bits'] ?? 'N/A') . ' bits';
+                }
+            }
         }
 
         AuditLoggerService::log('view_evidence', EvidenceItem::class, $evidence->id, [
@@ -100,7 +137,7 @@ class EvidenceController extends Controller
             'integrity_valid' => $isIntegrityValid,
         ]);
 
-        return view('evidence.show', compact('evidence', 'isIntegrityValid', 'fileMetadata'));
+        return view('evidence.show', compact('evidence', 'isIntegrityValid', 'fileMetadata', 'hexData', 'exifData'));
     }
 
     public function download($id)

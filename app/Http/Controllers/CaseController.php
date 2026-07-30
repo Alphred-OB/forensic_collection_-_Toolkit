@@ -106,7 +106,7 @@ class CaseController extends Controller
 
     public function show($id)
     {
-        $case = ForensicCase::with(['creator', 'assignedUsers', 'evidenceItems.currentCustodian'])->findOrFail($id);
+        $case = ForensicCase::with(['creator', 'assignedUsers', 'evidenceItems.currentCustodian', 'notes.user'])->findOrFail($id);
         
         $this->authorizeCaseAccess($case);
 
@@ -127,6 +127,34 @@ class CaseController extends Controller
         ]);
 
         return view('cases.show', compact('case', 'allUsers', 'activityLogs'));
+    }
+
+    public function storeNote(Request $request, $id)
+    {
+        $case = ForensicCase::findOrFail($id);
+        $this->authorizeCaseAccess($case);
+
+        if (!$case->isEditable()) {
+            return redirect()->back()->with('error', 'Cannot add notes to a closed or archived case.');
+        }
+
+        $request->validate([
+            'note' => 'required|string|max:2000',
+        ]);
+
+        $note = \App\Models\CaseNote::create([
+            'case_id' => $case->id,
+            'user_id' => Auth::id(),
+            'note' => $request->note,
+            'is_pinned' => $request->boolean('is_pinned'),
+        ]);
+
+        AuditLoggerService::log('add_case_note', ForensicCase::class, $case->id, [
+            'case_number' => $case->case_number,
+            'note_id' => $note->id,
+        ]);
+
+        return redirect()->route('cases.show', $case->id)->with('success', 'Operational shift note added to case timeline.');
     }
 
     public function edit($id)

@@ -94,20 +94,50 @@
                     </dl>
                 </div>
 
-                <!-- Hash & Custody Card -->
-                <div class="bg-white p-6 rounded-lg shadow-sm">
-                    <h3 class="text-lg font-bold text-gray-800 border-b pb-2 mb-4">Cryptographic & Custody Status</h3>
-                    <div class="mb-4">
-                        <label class="block text-xs font-semibold text-gray-500 uppercase">SHA-256 Fingerprint</label>
-                        <div class="mt-1 p-2 bg-gray-900 text-green-400 font-mono text-xs rounded break-all select-all">
-                            {{ $evidence->file_hash_sha256 }}
+                <!-- EXIF / Image Metadata Profile (if applicable) -->
+                @if(!empty($exifData))
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider border-b border-slate-200 pb-2 mb-3">Extracted Image / EXIF Profile</h3>
+                        <dl class="grid grid-cols-2 gap-2 text-xs">
+                            @foreach($exifData as $k => $v)
+                                <div class="p-2 bg-slate-50 rounded border border-slate-200">
+                                    <dt class="font-bold text-slate-500 uppercase text-[10px]">{{ $k }}</dt>
+                                    <dd class="font-mono text-slate-900 font-bold mt-0.5">{{ $v }}</dd>
+                                </div>
+                            @endforeach
+                        </dl>
+                    </div>
+                @endif
+
+                <!-- In-Browser Hex Viewer & Binary Inspector -->
+                @if(!empty($hexData))
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200" x-data="{ showHex: true }">
+                        <div class="flex justify-between items-center border-b border-slate-200 pb-3 mb-3">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">In-Browser Hex Viewer & Binary Inspector</h3>
+                                <p class="text-[11px] text-slate-500">First 512 bytes raw sector dump</p>
+                            </div>
+                            <button @click="showHex = !showHex" class="px-2.5 py-1 bg-slate-100 text-slate-700 font-semibold text-xs rounded border border-slate-200 hover:bg-slate-200 transition">
+                                <span x-text="showHex ? 'Hide Hex' : 'Show Hex'">Hide Hex</span>
+                            </button>
+                        </div>
+
+                        <div x-show="showHex" class="bg-slate-900 text-slate-200 p-4 rounded-lg font-mono text-[11px] overflow-x-auto space-y-1 select-all">
+                            <div class="flex text-slate-500 font-bold text-[10px] uppercase border-b border-slate-800 pb-1 mb-2">
+                                <span class="w-20">Offset</span>
+                                <span class="flex-1">Hexadecimal Dump</span>
+                                <span class="w-36 text-right">ASCII Preview</span>
+                            </div>
+                            @foreach($hexData as $row)
+                                <div class="flex justify-between hover:bg-slate-800 px-1 py-0.5 rounded">
+                                    <span class="w-20 text-emerald-400 font-bold">{{ $row['offset'] }}</span>
+                                    <span class="flex-1 text-slate-300 tracking-wider">{{ $row['hex'] }}</span>
+                                    <span class="w-36 text-right text-amber-300 font-bold tracking-widest">{{ $row['ascii'] }}</span>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
-                    <div class="space-y-3 text-sm">
-                        <div class="flex justify-between"><dt class="text-gray-500">Uploaded By:</dt><dd class="font-semibold text-gray-800">{{ $evidence->uploader->name }}</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">Current Custodian:</dt><dd class="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">{{ $evidence->currentCustodian->name }}</dd></div>
-                    </div>
-                </div>
+                @endif
             </div>
 
             <!-- Chain of Custody History & Transfers -->

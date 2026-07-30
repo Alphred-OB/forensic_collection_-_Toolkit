@@ -209,24 +209,76 @@
             @endif
         </div>
 
-        <!-- Recent Case Activity Timeline -->
-        <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Case Activity & Audit Trail</h3>
-            @if($activityLogs->isEmpty())
-                <p class="text-xs text-slate-500">No activity logged for this case yet.</p>
-            @else
-                <ul class="divide-y divide-slate-200 text-xs">
-                    @foreach($activityLogs as $log)
-                        <li class="py-2.5 flex justify-between items-center">
+        <!-- Case Activity & Operational Shift Notes (Split Grid) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Operational Shift Notes Thread -->
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+                        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Case Operational Notes</h3>
+                        <span class="text-xs text-slate-500 font-semibold">{{ $case->notes->count() }} Entries</span>
+                    </div>
+
+                    <!-- Add New Shift Note Form -->
+                    @if($case->isEditable() && Auth::user()->role !== 'Reviewer')
+                        <form method="POST" action="{{ route('cases.notes.store', $case->id) }}" class="mb-4">
+                            @csrf
                             <div>
-                                <span class="font-bold text-slate-900">{{ $log->user ? $log->user->name : 'System' }}</span>
-                                <span class="font-mono text-slate-700 uppercase px-2 py-0.5 bg-slate-100 rounded ml-2 border border-slate-200">{{ $log->action_type }}</span>
+                                <textarea name="note" rows="2" required placeholder="Log operational shift note, interview detail, or handover instruction..." class="w-full rounded-md border-slate-300 text-xs focus:border-blue-500 focus:ring-blue-500"></textarea>
                             </div>
-                            <span class="text-slate-500 font-mono">{{ $log->created_at->format('Y-m-d H:i:s') }}</span>
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
+                            <div class="flex items-center justify-between mt-2">
+                                <label class="inline-flex items-center text-xs text-slate-600">
+                                    <input type="checkbox" name="is_pinned" value="1" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                                    <span class="ms-1.5 font-medium">Pin to top of case</span>
+                                </label>
+                                <button type="submit" class="px-3.5 py-1.5 bg-slate-900 text-white rounded-md text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition">
+                                    Post Note
+                                </button>
+                            </div>
+                        </form>
+                    @endif
+
+                    <!-- Notes Thread List -->
+                    <div class="space-y-3 max-h-80 overflow-y-auto">
+                        @forelse($case->notes as $note)
+                            <div class="p-3 rounded-lg border {{ $note->is_pinned ? 'bg-amber-50/70 border-amber-300' : 'bg-slate-50 border-slate-200' }}">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-bold text-xs text-slate-900">{{ $note->user->name }} <span class="text-[10px] text-blue-600 font-semibold">({{ $note->user->role }})</span></span>
+                                    <div class="flex items-center space-x-2 text-[10px] text-slate-500 font-mono">
+                                        @if($note->is_pinned)
+                                            <span class="px-1.5 py-0.5 bg-amber-200 text-amber-900 font-bold uppercase rounded text-[9px]">Pinned</span>
+                                        @endif
+                                        <span>{{ $note->created_at->format('Y-m-d H:i') }}</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">{{ $note->note }}</p>
+                            </div>
+                        @empty
+                            <p class="text-xs text-slate-500 py-4 text-center">No operational shift notes recorded yet.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Case Activity Audit Timeline -->
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-200 pb-3">Case Activity & Audit Trail</h3>
+                @if($activityLogs->isEmpty())
+                    <p class="text-xs text-slate-500">No activity logged for this case yet.</p>
+                @else
+                    <ul class="divide-y divide-slate-200 text-xs">
+                        @foreach($activityLogs as $log)
+                            <li class="py-2.5 flex justify-between items-center">
+                                <div>
+                                    <span class="font-bold text-slate-900">{{ $log->user ? $log->user->name : 'System' }}</span>
+                                    <span class="font-mono text-slate-700 uppercase px-2 py-0.5 bg-slate-100 rounded ml-2 border border-slate-200">{{ $log->action_type }}</span>
+                                </div>
+                                <span class="text-slate-500 font-mono">{{ $log->created_at->format('Y-m-d H:i:s') }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
         </div>
 
         <!-- Manage Team Modal -->
