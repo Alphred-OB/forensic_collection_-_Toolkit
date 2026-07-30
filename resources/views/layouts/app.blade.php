@@ -23,8 +23,8 @@
     </head>
     <body class="font-sans antialiased bg-slate-100 text-slate-900 overflow-hidden" x-data="{ sidebarOpen: false }">
         <div class="h-screen flex overflow-hidden">
-            @if(Auth::check() && Auth::user()->role === 'Administrator')
-                <!-- Admin Sidebar Layout for all Admin views -->
+            @if(Auth::check())
+                <!-- Universal Sidebar Layout for all authenticated roles -->
                 @include('layouts.admin-sidebar')
 
                 <div class="flex-1 flex flex-col min-w-0 bg-slate-100 h-screen overflow-y-auto">
@@ -86,27 +86,6 @@
                         </div>
                         @include('layouts.footer')
                     </main>
-                </div>
-            @else
-                <!-- Standard Top Navigation Layout for non-admins -->
-                <div class="w-full flex flex-col min-h-screen">
-                    @include('layouts.navigation')
-
-                    <!-- Page Heading -->
-                    @isset($header)
-                        <header class="bg-white border-b border-slate-200">
-                            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                                {{ $header }}
-                            </div>
-                        </header>
-                    @endisset
-
-                    <!-- Page Content -->
-                    <main class="flex-1 p-6">
-                        {{ $slot }}
-                    </main>
-
-                    @include('layouts.footer')
                 </div>
             @endif
         </div>
