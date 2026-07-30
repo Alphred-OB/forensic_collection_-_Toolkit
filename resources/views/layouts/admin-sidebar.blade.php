@@ -1,11 +1,31 @@
-<aside class="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 h-screen sticky top-0 border-r border-slate-800 overflow-y-auto z-40">
+<!-- Mobile Backdrop Overlay -->
+<div x-show="sidebarOpen" 
+     x-transition:enter="transition-opacity ease-linear duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition-opacity ease-linear duration-300"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     @click="sidebarOpen = false"
+     class="fixed inset-0 bg-slate-900/80 backdrop-blur-xs z-40 lg:hidden" 
+     style="display: none;"></div>
+
+<!-- Responsive Sidebar Drawer -->
+<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+       class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 h-screen sticky top-0 border-r border-slate-800 overflow-y-auto z-50 transition-transform duration-300 ease-in-out">
     <!-- Brand / Logo Header -->
-    <div class="p-5 border-b border-slate-800 flex items-center space-x-3">
-        <img src="{{ asset('favicon/favicon.svg') }}" alt="Forensic Toolkit Logo" class="w-8 h-8 rounded-md shadow-sm" />
-        <div>
-            <h1 class="font-bold text-white text-xs tracking-wider">FORENSIC TOOLKIT</h1>
-            <p class="text-[11px] text-blue-400 font-medium">Admin Console</p>
+    <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <img src="{{ asset('favicon/favicon.svg') }}" alt="Forensic Toolkit Logo" class="w-8 h-8 rounded-md shadow-sm" />
+            <div>
+                <h1 class="font-bold text-white text-xs tracking-wider">FORENSIC TOOLKIT</h1>
+                <p class="text-[11px] text-blue-400 font-medium">Admin Console</p>
+            </div>
         </div>
+        <!-- Close button on Mobile -->
+        <button @click="sidebarOpen = false" class="lg:hidden text-slate-400 hover:text-white p-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
     </div>
 
     <!-- Navigation Menu -->
@@ -15,7 +35,7 @@
         </div>
 
         <a href="{{ route('admin.dashboard') }}" class="flex items-center px-3 py-2.5 rounded-md transition {{ request()->routeIs('admin.dashboard') ? 'bg-blue-600 text-white font-semibold shadow-sm' : 'hover:bg-slate-800 hover:text-white' }}">
-            <svg class="w-4 h-4 mr-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+            <svg class="w-4 h-4 mr-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
             Dashboard Overview
         </a>
 

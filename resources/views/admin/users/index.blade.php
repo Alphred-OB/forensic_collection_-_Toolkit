@@ -1,12 +1,14 @@
 <x-app-layout>
-    <div class="py-6 space-y-6" x-data="{ showCreateModal: false, showEditModal: false, activeUser: {} }">
-        <!-- Page Title Card inside content -->
-        <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-            <h2 class="font-extrabold text-xl text-slate-900 leading-tight">
+    <x-slot name="header">
+        <div>
+            <h2 class="font-extrabold text-lg text-slate-900 leading-tight">
                 User Account & Role Management
             </h2>
-            <p class="text-xs text-slate-500 mt-1">Provision user accounts, edit details, assign system roles, or remove personnel access.</p>
+            <p class="text-xs text-slate-500">Provision user accounts, edit details, assign system roles, or remove personnel access.</p>
         </div>
+    </x-slot>
+
+    <div class="py-6 space-y-6" x-data="{ showCreateModal: false, showEditModal: false, activeUser: {} }">
         @if (session('success'))
             <div class="bg-emerald-50 border border-emerald-300 text-emerald-800 px-4 py-3 rounded-lg text-sm font-medium">
                 {{ session('success') }}

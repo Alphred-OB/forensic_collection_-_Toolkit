@@ -21,17 +21,31 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased bg-slate-100 text-slate-900 overflow-hidden">
+    <body class="font-sans antialiased bg-slate-100 text-slate-900 overflow-hidden" x-data="{ sidebarOpen: false }">
         <div class="h-screen flex overflow-hidden">
             @if(Auth::check() && Auth::user()->role === 'Administrator')
                 <!-- Admin Sidebar Layout for all Admin views -->
                 @include('layouts.admin-sidebar')
 
                 <div class="flex-1 flex flex-col min-w-0 bg-slate-100 h-screen overflow-y-auto">
-                    <!-- Top Header Bar with User Profile Widget -->
-                    <header class="bg-white border-b border-slate-200 py-3 px-6 sm:px-8 flex justify-end items-center shrink-0">
+                    <!-- Top Header Bar with Page Header Text & User Profile Widget -->
+                    <header class="bg-white border-b border-slate-200 py-3 px-4 sm:px-8 flex items-center justify-between gap-4 shrink-0">
+                        <div class="flex items-center space-x-3 min-w-0 overflow-hidden">
+                            <!-- Mobile Sidebar Toggle Button -->
+                            <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden text-slate-500 hover:text-slate-700 p-1.5 rounded-md border border-slate-200 shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                            </button>
+
+                            <!-- Top Header Title Text -->
+                            @isset($header)
+                                <div class="min-w-0 truncate">
+                                    {{ $header }}
+                                </div>
+                            @endisset
+                        </div>
+
                         <!-- Top Right Corner Profile Dropdown -->
-                        <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-4 shrink-0">
                             <x-dropdown align="right" width="48">
                                 <x-slot name="trigger">
                                     <button class="flex items-center space-x-3 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition focus:outline-none">

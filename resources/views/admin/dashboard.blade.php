@@ -1,18 +1,19 @@
 <x-app-layout>
+    <x-slot name="header">
+        <div>
+            <h2 class="font-extrabold text-lg text-slate-900 leading-tight">
+                System Administrator Console
+            </h2>
+            <p class="text-xs text-slate-500">Overview of system health, evidence vault storage, and security audit logs.</p>
+        </div>
+    </x-slot>
+
     <div class="py-6 space-y-6">
-        <!-- Page Title Card inside content -->
-        <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 flex justify-between items-center">
-            <div>
-                <h2 class="font-extrabold text-xl text-slate-900 leading-tight">
-                    System Administrator Console
-                </h2>
-                <p class="text-xs text-slate-500 mt-1">Overview of system health, evidence vault storage, and security audit logs.</p>
-            </div>
-            <div>
-                <a href="{{ route('admin.users.index') }}" class="px-3.5 py-2 bg-slate-900 text-white text-xs font-bold uppercase tracking-wider rounded-md shadow-xs hover:bg-slate-800 transition">
-                    Manage User Accounts &rarr;
-                </a>
-            </div>
+        <!-- Quick Action Banner -->
+        <div class="flex justify-end">
+            <a href="{{ route('admin.users.index') }}" class="px-3.5 py-2 bg-slate-900 text-white text-xs font-bold uppercase tracking-wider rounded-md shadow-xs hover:bg-slate-800 transition">
+                Manage User Accounts &rarr;
+            </a>
         </div>
         <!-- Integrity & Storage Banner -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
