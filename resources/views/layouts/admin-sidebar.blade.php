@@ -12,7 +12,7 @@
 
 <!-- Responsive Sidebar Drawer -->
 <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-       class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 h-screen sticky top-0 border-r border-slate-800 overflow-y-auto z-50 transition-transform duration-300 ease-in-out">
+       class="fixed lg:sticky top-0 inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 h-screen border-r border-slate-800 overflow-y-auto z-50 transition-transform duration-300 ease-in-out">
     <!-- Brand / Logo Header -->
     <div class="p-5 border-b border-slate-800 flex items-center justify-between">
         <div class="flex items-center space-x-3">
