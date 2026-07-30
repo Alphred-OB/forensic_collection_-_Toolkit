@@ -53,7 +53,7 @@
         <!-- Role Distribution Bar -->
         <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
             <h3 class="text-sm font-bold text-slate-900 mb-4">User Personnel Directory</h3>
-            <div class="grid grid-cols-3 gap-4 text-center">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                 <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
                     <p class="text-xs font-semibold text-slate-500 uppercase">Administrators</p>
                     <p class="text-2xl font-bold text-slate-900 mt-1">{{ $stats['admins'] }}</p>
