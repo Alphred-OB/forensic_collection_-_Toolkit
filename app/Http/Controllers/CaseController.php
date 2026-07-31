@@ -27,7 +27,7 @@ class CaseController extends Controller
             $query->status($status);
         }
 
-        if ($user->role !== 'Administrator') {
+        if (!in_array($user->role, ['Administrator', 'Reviewer'])) {
             $query->whereHas('assignedUsers', function ($q) use ($user) {
                 $q->where('users.id', $user->id);
             });
@@ -377,7 +377,7 @@ class CaseController extends Controller
     private function authorizeCaseAccess(ForensicCase $case)
     {
         $user = Auth::user();
-        if ($user->role === 'Administrator') {
+        if (in_array($user->role, ['Administrator', 'Reviewer'])) {
             return;
         }
 
