@@ -106,7 +106,15 @@ class CaseController extends Controller
 
     public function show($id)
     {
-        $case = ForensicCase::with(['creator', 'assignedUsers', 'evidenceItems.currentCustodian', 'notes.user'])->findOrFail($id);
+        $case = ForensicCase::with([
+            'creator',
+            'assignedUsers',
+            'evidenceItems.uploader',
+            'evidenceItems.currentCustodian',
+            'evidenceItems.transfers.fromUser',
+            'evidenceItems.transfers.toUser',
+            'notes.user'
+        ])->findOrFail($id);
         
         $this->authorizeCaseAccess($case);
 
@@ -122,11 +130,71 @@ class CaseController extends Controller
             ->take(10)
             ->get();
 
+        // Assemble Chronological Event Timeline
+        $timelineEvents = collect();
+
+        // 1. Case Creation Event
+        $timelineEvents->push([
+            'timestamp' => $case->created_at,
+            'category' => 'case',
+            'type_label' => 'Case Opened',
+            'title' => 'Case Initialized: ' . $case->case_number,
+            'description' => 'Case created by ' . ($case->creator ? $case->creator->name : 'System') . ' with priority ' . strtoupper($case->priority),
+            'actor' => $case->creator ? $case->creator->name : 'System',
+            'color' => 'blue',
+            'icon' => 'folder-plus',
+        ]);
+
+        // 2. Evidence Intake Events
+        foreach ($case->evidenceItems as $ev) {
+            $timelineEvents->push([
+                'timestamp' => $ev->collected_at ?: $ev->created_at,
+                'category' => 'evidence',
+                'type_label' => 'Evidence Intake',
+                'title' => 'Ingested Item #' . $ev->evidence_number,
+                'description' => 'File: ' . $ev->file_name . ' (' . number_format($ev->file_size / 1024, 1) . ' KB). Source device: ' . $ev->source_device,
+                'actor' => $ev->uploader ? $ev->uploader->name : 'System',
+                'color' => 'emerald',
+                'icon' => 'cube',
+            ]);
+
+            // 3. Custody Transfers Events
+            foreach ($ev->transfers as $tr) {
+                $timelineEvents->push([
+                    'timestamp' => $tr->transferred_at,
+                    'category' => 'custody',
+                    'type_label' => 'Custody Transfer (' . strtoupper($tr->status) . ')',
+                    'title' => 'Custody Transfer #' . $ev->evidence_number,
+                    'description' => $tr->fromUser->name . ' → ' . $tr->toUser->name . '. Reason: ' . $tr->reason,
+                    'actor' => $tr->fromUser->name,
+                    'color' => $tr->status === 'accepted' ? 'indigo' : ($tr->status === 'rejected' ? 'rose' : 'amber'),
+                    'icon' => 'switch',
+                ]);
+            }
+        }
+
+        // 4. Case Operational Notes Events
+        foreach ($case->notes as $note) {
+            $timelineEvents->push([
+                'timestamp' => $note->created_at,
+                'category' => 'note',
+                'type_label' => $note->is_pinned ? 'Pinned Operational Note' : 'Shift Note',
+                'title' => 'Operational Update by ' . $note->user->name,
+                'description' => $note->note,
+                'actor' => $note->user->name,
+                'color' => $note->is_pinned ? 'amber' : 'purple',
+                'icon' => 'document-text',
+            ]);
+        }
+
+        // Sort events chronologically (latest first or oldest first)
+        $timelineEvents = $timelineEvents->sortByDesc('timestamp')->values();
+
         AuditLoggerService::log('view_case', ForensicCase::class, $case->id, [
             'case_number' => $case->case_number,
         ]);
 
-        return view('cases.show', compact('case', 'allUsers', 'activityLogs'));
+        return view('cases.show', compact('case', 'allUsers', 'activityLogs', 'timelineEvents'));
     }
 
     public function storeNote(Request $request, $id)

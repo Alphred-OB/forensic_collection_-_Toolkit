@@ -207,6 +207,65 @@
                     </table>
                 </div>
             @endif
+        <!-- Interactive Chronological Timeline Visualizer & Event Reconstruction Map -->
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200" x-data="{ timelineFilter: 'all' }">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4 mb-6">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Chronological Investigation Timeline & Event Map
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Reconstruct incident events, evidence collection, custody shifts, and shift notes</p>
+                </div>
+                <!-- Timeline Filter Buttons -->
+                <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs shrink-0 overflow-x-auto">
+                    <button @click="timelineFilter = 'all'" :class="timelineFilter === 'all' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1 rounded-md transition">All Events ({{ $timelineEvents->count() }})</button>
+                    <button @click="timelineFilter = 'case'" :class="timelineFilter === 'case' ? 'bg-white text-blue-700 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1 rounded-md transition">Case</button>
+                    <button @click="timelineFilter = 'evidence'" :class="timelineFilter === 'evidence' ? 'bg-white text-emerald-700 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1 rounded-md transition">Evidence</button>
+                    <button @click="timelineFilter = 'custody'" :class="timelineFilter === 'custody' ? 'bg-white text-indigo-700 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1 rounded-md transition">Custody</button>
+                    <button @click="timelineFilter = 'note'" :class="timelineFilter === 'note' ? 'bg-white text-amber-700 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1 rounded-md transition">Notes</button>
+                </div>
+            </div>
+
+            <!-- Vertical Timeline Axis -->
+            <div class="relative border-l-2 border-slate-200 ml-4 sm:ml-6 space-y-6">
+                @forelse($timelineEvents as $event)
+                    <div x-show="timelineFilter === 'all' || timelineFilter === '{{ $event['category'] }}'" 
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 transform -translate-y-2"
+                         x-transition:enter-end="opacity-100 transform translate-y-0"
+                         class="relative pl-6 sm:pl-8 group">
+                        
+                        <!-- Timeline Node Dot -->
+                        <div class="absolute -left-2.5 top-1.5 w-5 h-5 rounded-full border-2 border-white shadow-xs flex items-center justify-center 
+                            {{ $event['color'] === 'blue' ? 'bg-blue-600' : ($event['color'] === 'emerald' ? 'bg-emerald-600' : ($event['color'] === 'indigo' ? 'bg-indigo-600' : ($event['color'] === 'rose' ? 'bg-rose-600' : ($event['color'] === 'amber' ? 'bg-amber-500' : 'bg-purple-600')))) }}">
+                        </div>
+
+                        <!-- Card Content -->
+                        <div class="p-4 rounded-lg bg-slate-50 border border-slate-200 group-hover:border-slate-300 group-hover:shadow-xs transition">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded tracking-wider
+                                        {{ $event['color'] === 'blue' ? 'bg-blue-100 text-blue-800 border border-blue-200' : ($event['color'] === 'emerald' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($event['color'] === 'indigo' ? 'bg-indigo-100 text-indigo-800 border border-indigo-200' : ($event['color'] === 'rose' ? 'bg-rose-100 text-rose-800 border border-rose-200' : ($event['color'] === 'amber' ? 'bg-amber-100 text-amber-900 border border-amber-200' : 'bg-purple-100 text-purple-800 border border-purple-200')))) }}">
+                                        {{ $event['type_label'] }}
+                                    </span>
+                                    <h4 class="font-bold text-sm text-slate-900">{{ $event['title'] }}</h4>
+                                </div>
+                                <span class="font-mono text-xs text-slate-500 font-semibold">{{ \Carbon\Carbon::parse($event['timestamp'])->format('Y-m-d H:i:s T') }}</span>
+                            </div>
+
+                            <p class="text-xs text-slate-700 leading-relaxed mb-2">{{ $event['description'] }}</p>
+                            
+                            <div class="flex items-center justify-between text-[11px] text-slate-500 border-t border-slate-200/60 pt-2 mt-2">
+                                <span>Recorded by: <strong class="text-slate-800">{{ $event['actor'] }}</strong></span>
+                                <span class="font-mono text-[10px]">{{ \Carbon\Carbon::parse($event['timestamp'])->diffForHumans() }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <p class="text-xs text-slate-500 py-6 text-center">No timeline events recorded yet.</p>
+                @endforelse
+            </div>
         </div>
 
         <!-- Case Activity & Operational Shift Notes (Split Grid) -->
