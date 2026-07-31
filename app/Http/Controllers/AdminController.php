@@ -35,7 +35,36 @@ class AdminController extends Controller
         $recentUsers = User::latest()->take(5)->get();
         $recentAuditLogs = AuditLog::with('user')->latest('id')->take(8)->get();
 
-        return view('admin.dashboard', compact('stats', 'auditIntegrity', 'recentUsers', 'recentAuditLogs'));
+        // Case Status Breakdown Chart Data
+        $caseStatusChart = [
+            'open' => ForensicCase::where('status', 'open')->count(),
+            'closed' => ForensicCase::where('status', 'closed')->count(),
+            'archived' => ForensicCase::where('status', 'archived')->count(),
+        ];
+
+        // Evidence Classification Breakdown Chart Data
+        $evidenceClassificationChart = EvidenceItem::select('classification', DB::raw('count(*) as total'))
+            ->groupBy('classification')
+            ->pluck('total', 'classification')
+            ->toArray();
+
+        // Monthly Audit Logs Activity Trend (Last 6 Months)
+        $auditTrendChart = AuditLog::select(DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month_year"), DB::raw('count(*) as count'))
+            ->groupBy('month_year')
+            ->orderBy('month_year', 'asc')
+            ->take(6)
+            ->pluck('count', 'month_year')
+            ->toArray();
+
+        return view('admin.dashboard', compact(
+            'stats',
+            'auditIntegrity',
+            'recentUsers',
+            'recentAuditLogs',
+            'caseStatusChart',
+            'evidenceClassificationChart',
+            'auditTrendChart'
+        ));
     }
 
     public function users(Request $request)

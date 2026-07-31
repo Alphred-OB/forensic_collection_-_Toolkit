@@ -69,6 +69,42 @@
             </div>
         </div>
 
+        <!-- Interactive Analytics Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 1. Case Status Breakdown (Doughnut Chart) -->
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-1">Case Status Distribution</h3>
+                    <p class="text-xs text-slate-500 mb-4">Active vs Closed & Archived Cases</p>
+                </div>
+                <div class="relative h-48 w-full flex items-center justify-center">
+                    <canvas id="caseStatusChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 2. Evidence Classification Vault Breakdown (Bar Chart) -->
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-1">Evidence Artifact Vault</h3>
+                    <p class="text-xs text-slate-500 mb-4">Distribution by Classification Type</p>
+                </div>
+                <div class="relative h-48 w-full flex items-center justify-center">
+                    <canvas id="evidenceClassificationChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 3. Audit Activity Trend (Line Chart) -->
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-1">Audit Volume Velocity</h3>
+                    <p class="text-xs text-slate-500 mb-4">Historical Audit Log Entry Volume</p>
+                </div>
+                <div class="relative h-48 w-full flex items-center justify-center">
+                    <canvas id="auditTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
         <!-- System Audit Feed & User List Split -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Recent Audit Entries -->
@@ -110,4 +146,91 @@
             </div>
         </div>
     </div>
+
+    <!-- Chart.js Script Initializer -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Case Status Doughnut Chart
+            new Chart(document.getElementById('caseStatusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Open', 'Closed', 'Archived'],
+                    datasets: [{
+                        data: [
+                            {{ $caseStatusChart['open'] }},
+                            {{ $caseStatusChart['closed'] }},
+                            {{ $caseStatusChart['archived'] }}
+                        ],
+                        backgroundColor: ['#10b981', '#64748b', '#cbd5e1'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { size: 11, family: 'sans-serif' } } }
+                    }
+                }
+            });
+
+            // 2. Evidence Classification Bar Chart
+            const classificationLabels = {!! json_encode(array_map(fn($k) => strtoupper(str_replace('_', ' ', $k)), array_keys($evidenceClassificationChart))) !!};
+            const classificationCounts = {!! json_encode(array_values($evidenceClassificationChart)) !!};
+
+            new Chart(document.getElementById('evidenceClassificationChart'), {
+                type: 'bar',
+                data: {
+                    labels: classificationLabels.length ? classificationLabels : ['No Evidence'],
+                    datasets: [{
+                        label: 'Item Count',
+                        data: classificationCounts.length ? classificationCounts : [0],
+                        backgroundColor: '#2563eb',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0, font: { size: 10 } } },
+                        x: { ticks: { font: { size: 10 } } }
+                    }
+                }
+            });
+
+            // 3. Audit Trend Line Chart
+            const auditLabels = {!! json_encode(array_keys($auditTrendChart)) !!};
+            const auditCounts = {!! json_encode(array_values($auditTrendChart)) !!};
+
+            new Chart(document.getElementById('auditTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: auditLabels.length ? auditLabels : ['Current'],
+                    datasets: [{
+                        label: 'Audit Log Entries',
+                        data: auditCounts.length ? auditCounts : [{{ $auditIntegrity['total_entries'] }}],
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0, font: { size: 10 } } },
+                        x: { ticks: { font: { size: 10 } } }
+                    }
+                }
+            });
+        });
+    </script>
 </x-app-layout>
