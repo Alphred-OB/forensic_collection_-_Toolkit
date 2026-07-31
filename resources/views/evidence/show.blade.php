@@ -55,130 +55,150 @@
                 </span>
             </div>
 
-            <!-- Evidence Metadata Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Metadata Card -->
-                <div class="bg-white p-6 rounded-lg shadow-sm">
-                    <h3 class="text-lg font-bold text-gray-800 border-b pb-2 mb-4">Evidence Specifications</h3>
-                    <dl class="space-y-3 text-sm">
-                        <div class="flex justify-between"><dt class="text-gray-500">Source Device:</dt><dd class="font-semibold text-gray-800">{{ $evidence->source_device }}</dd></div>
-                        <div class="flex justify-between">
-                            <dt class="text-gray-500">Classification:</dt>
-                            <dd class="font-semibold text-indigo-600 uppercase">
-                                {{ $evidence->classification === 'custom' ? ($evidence->custom_classification ?: 'Custom Classification') : str_replace('_', ' ', $evidence->classification) }}
-                            </dd>
-                        </div>
-                        @if($evidence->parent)
-                            <div class="flex justify-between bg-blue-50 p-2 rounded border border-blue-100"><dt class="text-blue-700 font-bold">Parent Drive / Container:</dt><dd class="font-bold text-blue-900"><a href="{{ route('evidence.show', $evidence->parent->id) }}" class="underline">{{ $evidence->parent->evidence_number }} &mdash; {{ $evidence->parent->file_name }}</a></dd></div>
-                        @endif
-                        @if($evidence->subItems->isNotEmpty())
-                            <div class="pt-2 border-t border-slate-100">
-                                <dt class="text-xs font-bold text-slate-700 uppercase mb-1">Sub-Items / Extracted Partitions ({{ $evidence->subItems->count() }}):</dt>
-                                <dd class="space-y-1">
-                                    @foreach($evidence->subItems as $sub)
-                                        <div class="flex justify-between text-xs p-2 bg-slate-50 rounded border border-slate-200">
-                                            <a href="{{ route('evidence.show', $sub->id) }}" class="font-bold text-blue-600 hover:underline">{{ $sub->evidence_number }} &mdash; {{ $sub->file_name }}</a>
-                                            <span class="font-mono text-slate-500 text-[10px]">{{ str_replace('_', ' ', $sub->classification) }}</span>
-                                        </div>
-                                    @endforeach
+            <!-- Evidence Details & History Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Left Column: Metadata & EXIF -->
+                <div class="space-y-6">
+                    <!-- Metadata Card -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4">Evidence Specifications</h3>
+                        <dl class="space-y-3 text-sm">
+                            <div class="flex justify-between"><dt class="text-slate-500">Source Device:</dt><dd class="font-semibold text-slate-800">{{ $evidence->source_device }}</dd></div>
+                            <div class="flex justify-between">
+                                <dt class="text-slate-500">Classification:</dt>
+                                <dd class="font-semibold text-blue-600 uppercase">
+                                    {{ $evidence->classification === 'custom' ? ($evidence->custom_classification ?: 'Custom Classification') : str_replace('_', ' ', $evidence->classification) }}
                                 </dd>
                             </div>
-                        @endif
-                        <div class="flex justify-between"><dt class="text-gray-500">Original File Name:</dt><dd class="font-mono text-gray-800">{{ $evidence->file_name }}</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">File Size:</dt><dd class="font-mono text-gray-800">{{ number_format($evidence->file_size / 1024, 2) }} KB ({{ number_format($evidence->file_size) }} bytes)</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">MIME Content Type:</dt><dd class="font-mono text-blue-700 bg-blue-50 px-2 py-0.5 rounded text-xs font-semibold">{{ $fileMetadata['mime_type'] }}</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">File Extension Format:</dt><dd class="font-mono text-slate-800 font-bold uppercase">{{ $fileMetadata['extension'] }}</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">Disk Storage Timestamp:</dt><dd class="font-mono text-slate-700 text-xs">{{ $fileMetadata['last_modified'] }}</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">Collection Location:</dt><dd class="text-gray-800">{{ $evidence->collected_location }}</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">Collected At:</dt><dd class="text-gray-800">{{ $evidence->collected_at->format('Y-m-d H:i') }}</dd></div>
-                    </dl>
-                </div>
-
-                <!-- EXIF / Image Metadata Profile (if applicable) -->
-                @if(!empty($exifData))
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-                        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider border-b border-slate-200 pb-2 mb-3">Extracted Image / EXIF Profile</h3>
-                        <dl class="grid grid-cols-2 gap-2 text-xs">
-                            @foreach($exifData as $k => $v)
-                                <div class="p-2 bg-slate-50 rounded border border-slate-200">
-                                    <dt class="font-bold text-slate-500 uppercase text-[10px]">{{ $k }}</dt>
-                                    <dd class="font-mono text-slate-900 font-bold mt-0.5">{{ $v }}</dd>
+                            @if($evidence->parent)
+                                <div class="flex justify-between bg-blue-50 p-2 rounded border border-blue-100"><dt class="text-blue-700 font-bold">Parent Drive / Container:</dt><dd class="font-bold text-blue-900"><a href="{{ route('evidence.show', $evidence->parent->id) }}" class="underline">{{ $evidence->parent->evidence_number }} &mdash; {{ $evidence->parent->file_name }}</a></dd></div>
+                            @endif
+                            @if($evidence->subItems->isNotEmpty())
+                                <div class="pt-2 border-t border-slate-100">
+                                    <dt class="text-xs font-bold text-slate-700 uppercase mb-1">Sub-Items / Extracted Partitions ({{ $evidence->subItems->count() }}):</dt>
+                                    <dd class="space-y-1">
+                                        @foreach($evidence->subItems as $sub)
+                                            <div class="flex justify-between text-xs p-2 bg-slate-50 rounded border border-slate-200">
+                                                <a href="{{ route('evidence.show', $sub->id) }}" class="font-bold text-blue-600 hover:underline">{{ $sub->evidence_number }} &mdash; {{ $sub->file_name }}</a>
+                                                <span class="font-mono text-slate-500 text-[10px]">{{ str_replace('_', ' ', $sub->classification) }}</span>
+                                            </div>
+                                        @endforeach
+                                    </dd>
                                 </div>
-                            @endforeach
+                            @endif
+                            <div class="flex justify-between flex-wrap gap-1"><dt class="text-slate-500">Original File Name:</dt><dd class="font-mono text-slate-800 break-all">{{ $evidence->file_name }}</dd></div>
+                            <div class="flex justify-between"><dt class="text-slate-500">File Size:</dt><dd class="font-mono text-slate-800">{{ number_format($evidence->file_size / 1024, 2) }} KB ({{ number_format($evidence->file_size) }} bytes)</dd></div>
+                            <div class="flex justify-between"><dt class="text-slate-500">MIME Content Type:</dt><dd class="font-mono text-blue-700 bg-blue-50 px-2 py-0.5 rounded text-xs font-semibold">{{ $fileMetadata['mime_type'] }}</dd></div>
+                            <div class="flex justify-between"><dt class="text-slate-500">File Extension Format:</dt><dd class="font-mono text-slate-800 font-bold uppercase">{{ $fileMetadata['extension'] }}</dd></div>
+                            <div class="flex justify-between"><dt class="text-slate-500">Disk Storage Timestamp:</dt><dd class="font-mono text-slate-700 text-xs">{{ $fileMetadata['last_modified'] }}</dd></div>
+                            <div class="flex justify-between"><dt class="text-slate-500">Collection Location:</dt><dd class="text-slate-800">{{ $evidence->collected_location }}</dd></div>
+                            <div class="flex justify-between"><dt class="text-slate-500">Collected At:</dt><dd class="text-slate-800">{{ $evidence->collected_at->format('Y-m-d H:i') }}</dd></div>
                         </dl>
                     </div>
-                @endif
 
-                <!-- In-Browser Hex Viewer & Binary Inspector -->
-                @if(!empty($hexData))
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200" x-data="{ showHex: true }">
-                        <div class="flex justify-between items-center border-b border-slate-200 pb-3 mb-3">
-                            <div>
-                                <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">In-Browser Hex Viewer & Binary Inspector</h3>
-                                <p class="text-[11px] text-slate-500">First 512 bytes raw sector dump</p>
-                            </div>
-                            <button @click="showHex = !showHex" class="px-2.5 py-1 bg-slate-100 text-slate-700 font-semibold text-xs rounded border border-slate-200 hover:bg-slate-200 transition">
-                                <span x-text="showHex ? 'Hide Hex' : 'Show Hex'">Hide Hex</span>
-                            </button>
-                        </div>
-
-                        <div x-show="showHex" class="bg-slate-900 text-slate-200 p-4 rounded-lg font-mono text-[11px] overflow-x-auto space-y-1 select-all">
-                            <div class="flex text-slate-500 font-bold text-[10px] uppercase border-b border-slate-800 pb-1 mb-2">
-                                <span class="w-20">Offset</span>
-                                <span class="flex-1">Hexadecimal Dump</span>
-                                <span class="w-36 text-right">ASCII Preview</span>
-                            </div>
-                            @foreach($hexData as $row)
-                                <div class="flex justify-between hover:bg-slate-800 px-1 py-0.5 rounded">
-                                    <span class="w-20 text-emerald-400 font-bold">{{ $row['offset'] }}</span>
-                                    <span class="flex-1 text-slate-300 tracking-wider">{{ $row['hex'] }}</span>
-                                    <span class="w-36 text-right text-amber-300 font-bold tracking-widest">{{ $row['ascii'] }}</span>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-            </div>
-
-            <!-- Chain of Custody History & Transfers -->
-            <div class="bg-white p-6 rounded-lg shadow-sm">
-                <h3 class="text-lg font-bold text-gray-800 mb-4">Chain of Custody (CoC) Audit Log</h3>
-                
-                @if($evidence->transfers->isEmpty())
-                    <p class="text-sm text-gray-500">No custody transfers recorded yet. The evidence is currently with original uploader <span class="font-semibold text-gray-700">{{ $evidence->uploader->name }}</span>.</p>
-                @else
-                    <div class="relative border-l-2 border-indigo-200 ml-4 space-y-6">
-                        @foreach($evidence->transfers as $transfer)
-                            <div class="ml-6">
-                                <span class="absolute -left-2.5 flex items-center justify-center w-5 h-5 rounded-full {{ $transfer->status === 'accepted' ? 'bg-indigo-600 ring-4 ring-white text-white text-xs' : 'bg-amber-400' }}"></span>
-                                <div class="p-4 bg-gray-50 rounded-md border border-gray-200">
-                                    <div class="flex justify-between items-center mb-1">
-                                        <span class="font-bold text-sm text-gray-800">{{ $transfer->fromUser->name }} &rarr; {{ $transfer->toUser->name }}</span>
-                                        <span class="text-xs font-semibold px-2 py-0.5 rounded uppercase {{ $transfer->status === 'accepted' ? 'bg-green-100 text-green-800' : ($transfer->status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800') }}">
-                                            {{ $transfer->status }}
-                                        </span>
+                    <!-- EXIF / Image Metadata Profile (if applicable) -->
+                    @if(!empty($exifData))
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider border-b border-slate-200 pb-2 mb-3">Extracted Image / EXIF Profile</h3>
+                            <dl class="grid grid-cols-2 gap-2 text-xs">
+                                @foreach($exifData as $k => $v)
+                                    <div class="p-2 bg-slate-50 rounded border border-slate-200">
+                                        <dt class="font-bold text-slate-500 uppercase text-[10px]">{{ $k }}</dt>
+                                        <dd class="font-mono text-slate-900 font-bold mt-0.5">{{ $v }}</dd>
                                     </div>
-                                    <p class="text-xs text-gray-600 mb-2"><strong>Reason:</strong> {{ $transfer->reason }}</p>
-                                    <p class="text-xs text-gray-400">Initiated: {{ $transfer->transferred_at->format('Y-m-d H:i') }} @if($transfer->accepted_at)| Accepted: {{ $transfer->accepted_at->format('Y-m-d H:i') }}@endif</p>
-                                    
-                                    @if($transfer->status === 'pending' && $transfer->to_user_id === Auth::id())
-                                        <div class="mt-3 flex space-x-2">
-                                            <form method="POST" action="{{ route('custody.accept', $transfer->id) }}">
-                                                @csrf
-                                                <button type="submit" class="px-3 py-1 bg-green-600 text-white text-xs font-bold rounded hover:bg-green-700">Accept Custody</button>
-                                            </form>
-                                            <form method="POST" action="{{ route('custody.reject', $transfer->id) }}">
-                                                @csrf
-                                                <button type="submit" class="px-3 py-1 bg-red-600 text-white text-xs font-bold rounded hover:bg-red-700">Reject</button>
-                                            </form>
-                                        </div>
-                                    @endif
-                                </div>
+                                @endforeach
+                            </dl>
+                        </div>
+                    @endif
+
+                    <!-- Hash & Custody Status -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4">Cryptographic & Custody Status</h3>
+                        <div class="mb-4">
+                            <label class="block text-xs font-semibold text-slate-500 uppercase">SHA-256 Fingerprint</label>
+                            <div class="mt-1 p-2 bg-slate-900 text-emerald-400 font-mono text-xs rounded break-all select-all">
+                                {{ $evidence->file_hash_sha256 }}
                             </div>
-                        @endforeach
+                        </div>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between"><dt class="text-slate-500">Uploaded By:</dt><dd class="font-semibold text-slate-800">{{ $evidence->uploader->name }}</dd></div>
+                            <div class="flex justify-between"><dt class="text-slate-500">Current Custodian:</dt><dd class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">{{ $evidence->currentCustodian->name }}</dd></div>
+                        </div>
                     </div>
-                @endif
+                </div>
+
+                <!-- Right Column: Hex Viewer & Chain of Custody Audit Log -->
+                <div class="space-y-6">
+                    <!-- In-Browser Hex Viewer & Binary Inspector -->
+                    @if(!empty($hexData))
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200" x-data="{ showHex: true }">
+                            <div class="flex justify-between items-center border-b border-slate-200 pb-3 mb-3">
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">In-Browser Hex Viewer & Binary Inspector</h3>
+                                    <p class="text-[11px] text-slate-500">First 512 bytes raw sector dump</p>
+                                </div>
+                                <button @click="showHex = !showHex" class="px-2.5 py-1 bg-slate-100 text-slate-700 font-semibold text-xs rounded border border-slate-200 hover:bg-slate-200 transition">
+                                    <span x-text="showHex ? 'Hide Hex' : 'Show Hex'">Hide Hex</span>
+                                </button>
+                            </div>
+
+                            <div x-show="showHex" class="bg-slate-900 text-slate-200 p-4 rounded-lg font-mono text-[11px] overflow-x-auto space-y-1 select-all">
+                                <div class="flex text-slate-500 font-bold text-[10px] uppercase border-b border-slate-800 pb-1 mb-2">
+                                    <span class="w-20 shrink-0">Offset</span>
+                                    <span class="flex-1 min-w-[200px]">Hexadecimal Dump</span>
+                                    <span class="w-32 shrink-0 text-right">ASCII Preview</span>
+                                </div>
+                                @foreach($hexData as $row)
+                                    <div class="flex justify-between hover:bg-slate-800 px-1 py-0.5 rounded gap-2">
+                                        <span class="w-20 shrink-0 text-emerald-400 font-bold">{{ $row['offset'] }}</span>
+                                        <span class="flex-1 min-w-[200px] text-slate-300 tracking-wider break-all">{{ $row['hex'] }}</span>
+                                        <span class="w-32 shrink-0 text-right text-amber-300 font-bold tracking-widest">{{ $row['ascii'] }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Chain of Custody History & Transfers -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-bold text-slate-900 border-b border-slate-200 pb-3 mb-4">Chain of Custody (CoC) Audit Log</h3>
+                        
+                        @if($evidence->transfers->isEmpty())
+                            <p class="text-sm text-slate-500">No custody transfers recorded yet. The evidence is currently with original uploader <span class="font-semibold text-slate-700">{{ $evidence->uploader->name }}</span>.</p>
+                        @else
+                            <div class="relative border-l-2 border-blue-200 ml-4 space-y-6">
+                                @foreach($evidence->transfers as $transfer)
+                                    <div class="ml-6">
+                                        <span class="absolute -left-2.5 flex items-center justify-center w-5 h-5 rounded-full {{ $transfer->status === 'accepted' ? 'bg-blue-600 ring-4 ring-white text-white text-xs' : 'bg-amber-400' }}"></span>
+                                        <div class="p-4 bg-slate-50 rounded-md border border-slate-200">
+                                            <div class="flex justify-between items-center mb-1">
+                                                <span class="font-bold text-sm text-slate-800">{{ $transfer->fromUser->name }} &rarr; {{ $transfer->toUser->name }}</span>
+                                                <span class="text-xs font-semibold px-2 py-0.5 rounded uppercase {{ $transfer->status === 'accepted' ? 'bg-emerald-100 text-emerald-800' : ($transfer->status === 'rejected' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800') }}">
+                                                    {{ $transfer->status }}
+                                                </span>
+                                            </div>
+                                            <p class="text-xs text-slate-600 mb-2"><strong>Reason:</strong> {{ $transfer->reason }}</p>
+                                            <p class="text-xs text-slate-400">Initiated: {{ $transfer->transferred_at->format('Y-m-d H:i') }} @if($transfer->accepted_at)| Accepted: {{ $transfer->accepted_at->format('Y-m-d H:i') }}@endif</p>
+                                            
+                                            @if($transfer->status === 'pending' && $transfer->to_user_id === Auth::id())
+                                                <div class="mt-3 flex space-x-2">
+                                                    <form method="POST" action="{{ route('custody.accept', $transfer->id) }}">
+                                                        @csrf
+                                                        <button type="submit" class="px-3 py-1 bg-emerald-600 text-white text-xs font-bold rounded hover:bg-emerald-700">Accept Custody</button>
+                                                    </form>
+                                                    <form method="POST" action="{{ route('custody.reject', $transfer->id) }}">
+                                                        @csrf
+                                                        <button type="submit" class="px-3 py-1 bg-rose-600 text-white text-xs font-bold rounded hover:bg-rose-700">Reject</button>
+                                                    </form>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                </div>
             </div>
-        </div>
     </div>
 </x-app-layout>
