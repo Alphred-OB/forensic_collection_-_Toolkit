@@ -132,18 +132,40 @@ To maintain codebase integrity, code quality, and proper audit history, all cont
 
 ## Screenshots
 
-Key screenshots of the system in use are in [`docs/screenshots`](docs/screenshots). These mirror the figures captioned in the written report.
+Key screenshots of the system in use, from [`docs/screenshots`](docs/screenshots). These mirror the figures captioned in the written report.
 
-| Screenshot | Description |
-|---|---|
-| `dashboard.png` | Case Status Doughnut, Evidence Classification Bar, and Audit Velocity charts |
-| `case-timeline.png` | Interactive chronological investigation timeline and event map |
-| `evidence-detail.png` | Evidence detail page with hex viewer and EXIF metadata |
-| `chain-of-custody.png` | Chain of custody transfer log and acceptance flow |
-| `2fa-setup.png` | Two-factor authentication setup and recovery keys |
-| `audit-log.png` | Audit logging and CSV export |
+**Sign In**
+![Sign in](docs/screenshots/signin.png)
 
-*(Add the actual image files to `docs/screenshots` and update this table to match what you include.)*
+**Two-Factor Authentication**
+![Two-factor authentication setup](docs/screenshots/2FA.png)
+
+**Dashboard — Case Status, Evidence Classification, and Audit Velocity charts**
+![Dashboard](docs/screenshots/dashboard.png)
+
+**Case Repository**
+![Case repository listing](docs/screenshots/case_repo.png)
+
+**Case Details — timeline and event map**
+![Case details](docs/screenshots/case_details.png)
+
+**Evidence Vault**
+![Evidence vault listing](docs/screenshots/Evidence_vault.png)
+
+**Evidence Inspection — hex viewer and EXIF metadata**
+![Evidence inspection](docs/screenshots/evidence_inspection.png)
+
+**Audit Log — tamper-evident hash-chained trail**
+![Audit log](docs/screenshots/audit_log.png)
+
+**Admin Dashboard**
+![Admin dashboard](docs/screenshots/admin_dashboard.png)
+
+**Role Management**
+![Role management](docs/screenshots/role_management.png)
+
+**Profile Page**
+![Profile page](docs/screenshots/Profile_page.png)
 
 ---
 
@@ -159,4 +181,5 @@ php artisan test
 
 ## License
 
-This project is open-source software licensed under the MIT license.
+This project was developed as an academic submission for CY376: Network Monitoring, Security
+and Auditing. It is not licensed for reuse, redistribution, or production deployment.
