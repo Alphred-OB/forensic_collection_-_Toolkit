@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
 use App\Models\EvidenceItem;
+use App\Models\ForensicCase;
 use App\Services\AuditLoggerService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AuditController extends Controller
@@ -19,6 +21,22 @@ class AuditController extends Controller
         $dateTo = $request->input('date_to');
 
         $query = AuditLog::with('user');
+
+        $user = Auth::user();
+        if (!in_array($user->role, ['Administrator', 'Reviewer'])) {
+            $assignedCaseIds = $user->assignedCases()->pluck('cases.id');
+            $assignedEvidenceIds = EvidenceItem::whereIn('case_id', $assignedCaseIds)->pluck('id');
+
+            $query->where(function ($q) use ($user, $assignedCaseIds, $assignedEvidenceIds) {
+                $q->where('user_id', $user->id)
+                  ->orWhere(function ($q2) use ($assignedCaseIds) {
+                      $q2->where('target_type', ForensicCase::class)->whereIn('target_id', $assignedCaseIds);
+                  })
+                  ->orWhere(function ($q2) use ($assignedEvidenceIds) {
+                      $q2->where('target_type', EvidenceItem::class)->whereIn('target_id', $assignedEvidenceIds);
+                  });
+            });
+        }
 
         if ($search) {
             $query->where(function ($q) use ($search) {

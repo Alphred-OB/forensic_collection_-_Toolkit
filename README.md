@@ -1,5 +1,9 @@
 # Digital Forensic Evidence Vault and Case Management System
 
+**Author:** Boakye Alfred Osei
+**Index Number:** FCM 41.018.099.23
+**Course:** CY376 — Network Monitoring, Security and Auditing
+
 ## Overview
 
 The **Digital Forensic Evidence Vault and Case Management System** is an enterprise-grade platform built using PHP and the Laravel framework. It provides digital forensics investigators, incident responders, and security administrators with a secure environment to manage forensic cases, store digital evidence, maintain strict chain-of-custody tracking, and perform integrity auditing.
@@ -123,6 +127,23 @@ To maintain codebase integrity, code quality, and proper audit history, all cont
    - Provide a clear summary of changes, motivation, and test steps in the PR description.
    - Assign relevant team members for code review.
    - Merge into `main` only after receiving necessary approvals and ensuring continuous integration checks pass.
+
+---
+
+## Screenshots
+
+Key screenshots of the system in use are in [`docs/screenshots`](docs/screenshots). These mirror the figures captioned in the written report.
+
+| Screenshot | Description |
+|---|---|
+| `dashboard.png` | Case Status Doughnut, Evidence Classification Bar, and Audit Velocity charts |
+| `case-timeline.png` | Interactive chronological investigation timeline and event map |
+| `evidence-detail.png` | Evidence detail page with hex viewer and EXIF metadata |
+| `chain-of-custody.png` | Chain of custody transfer log and acceptance flow |
+| `2fa-setup.png` | Two-factor authentication setup and recovery keys |
+| `audit-log.png` | Audit logging and CSV export |
+
+*(Add the actual image files to `docs/screenshots` and update this table to match what you include.)*
 
 ---
 

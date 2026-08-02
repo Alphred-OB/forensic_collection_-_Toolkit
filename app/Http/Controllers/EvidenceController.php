@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\AuthorizesCaseAccess;
 use App\Models\EvidenceItem;
 use App\Models\ForensicCase;
+use App\Models\SystemSetting;
 use App\Services\AuditLoggerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,9 +13,12 @@ use Illuminate\Support\Facades\Storage;
 
 class EvidenceController extends Controller
 {
+    use AuthorizesCaseAccess;
+
     public function create($caseId)
     {
         $case = ForensicCase::findOrFail($caseId);
+        $this->authorizeCaseAccess($case);
         if (!$case->isEditable()) {
             abort(403, 'Action prohibited: Cannot upload evidence to a closed or archived case.');
         }
@@ -24,9 +29,16 @@ class EvidenceController extends Controller
     public function store(Request $request, $caseId)
     {
         $case = ForensicCase::findOrFail($caseId);
+        $this->authorizeCaseAccess($case);
         if (!$case->isEditable()) {
             abort(403, 'Action prohibited: Cannot upload evidence to a closed or archived case.');
         }
+
+        $allowedExtensions = array_values(array_filter(array_map('trim', explode(
+            ',',
+            SystemSetting::getByKey('allowed_extensions', 'raw,dd,img,e01,vmdk,pcap,pcapng,pdf,png,jpg,txt,zip,7z')
+        ))));
+        $maxUploadKb = ((int) SystemSetting::getByKey('max_upload_size_mb', '1024')) * 1024;
 
         $request->validate([
             'evidence_number' => 'required|string|unique:evidence_items,evidence_number',
@@ -35,7 +47,7 @@ class EvidenceController extends Controller
             'source_device' => 'required|string',
             'classification' => 'required|in:original,forensic_copy,export,screenshot,reconstructed,custom',
             'custom_classification' => 'nullable|required_if:classification,custom|string|max:100',
-            'evidence_file' => 'required|file|max:1048576', // up to 1GB
+            'evidence_file' => ['required', 'file', 'max:' . $maxUploadKb, 'extensions:' . implode(',', $allowedExtensions)],
             'collected_at' => 'required|date',
             'collected_location' => 'required|string',
         ]);
@@ -78,7 +90,8 @@ class EvidenceController extends Controller
     public function show($id)
     {
         $evidence = EvidenceItem::with(['case', 'uploader', 'currentCustodian', 'transfers.fromUser', 'transfers.toUser'])->findOrFail($id);
-        
+        $this->authorizeCaseAccess($evidence->case);
+
         $isIntegrityValid = $evidence->verifyIntegrity();
 
         $fileMetadata = [
@@ -142,7 +155,8 @@ class EvidenceController extends Controller
 
     public function download($id)
     {
-        $evidence = EvidenceItem::findOrFail($id);
+        $evidence = EvidenceItem::with('case')->findOrFail($id);
+        $this->authorizeCaseAccess($evidence->case);
 
         if (!$evidence->verifyIntegrity()) {
             AuditLoggerService::log('download_evidence_tamper_alert', EvidenceItem::class, $evidence->id, [
@@ -163,6 +177,7 @@ class EvidenceController extends Controller
     public function exportBatchZip($caseId)
     {
         $case = ForensicCase::with('evidenceItems')->findOrFail($caseId);
+        $this->authorizeCaseAccess($case);
 
         if ($case->evidenceItems->isEmpty()) {
             return redirect()->back()->with('error', 'No evidence items recorded in this case to export.');
