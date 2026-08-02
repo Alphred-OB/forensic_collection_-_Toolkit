@@ -47,6 +47,15 @@ class CustodyController extends Controller
             'reason' => $request->reason,
         ]);
 
+        // Dispatch In-App Alert Notification
+        \App\Models\UserNotification::create([
+            'user_id' => $request->to_user_id,
+            'type' => 'custody_transfer',
+            'title' => 'Custody Transfer Requested',
+            'message' => Auth::user()->name . ' requested custody transfer for Evidence #' . $evidence->evidence_number . ': ' . $evidence->file_name,
+            'target_url' => route('evidence.show', $evidence->id),
+        ]);
+
         return redirect()->route('evidence.show', $evidence->id)->with('success', 'Custody transfer initiated. Awaiting acceptance from recipient.');
     }
 

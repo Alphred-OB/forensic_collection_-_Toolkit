@@ -13,7 +13,15 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// Two-Factor Authentication Secondary Challenge (Guest accessible via session)
+Route::get('/two-factor-challenge', [\App\Http\Controllers\TwoFactorController::class, 'showChallenge'])->name('two-factor.challenge');
+Route::post('/two-factor-challenge', [\App\Http\Controllers\TwoFactorController::class, 'verifyChallenge'])->name('two-factor.verify');
+
 Route::middleware(['auth', 'verified'])->group(function () {
+    // 2FA Setup & Profile Management
+    Route::get('/user/two-factor-setup', [\App\Http\Controllers\TwoFactorController::class, 'showSetup'])->name('two-factor.setup');
+    Route::post('/user/two-factor-enable', [\App\Http\Controllers\TwoFactorController::class, 'enable'])->name('two-factor.enable');
+    Route::post('/user/two-factor-disable', [\App\Http\Controllers\TwoFactorController::class, 'disable'])->name('two-factor.disable');
     Route::get('/dashboard', [CaseController::class, 'index'])->name('dashboard');
 
     // Case Routes
@@ -28,6 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/cases/{id}/team', [CaseController::class, 'updateTeam'])->name('cases.update-team');
     Route::post('/cases/{id}/status', [CaseController::class, 'updateStatus'])->name('cases.update-status');
     Route::post('/cases/{id}/close', [CaseController::class, 'close'])->name('cases.close');
+    Route::post('/cases/{id}/notes', [CaseController::class, 'storeNote'])->name('cases.notes.store');
 
     // Evidence Routes
     Route::get('/cases/{caseId}/evidence/create', [EvidenceController::class, 'create'])->name('evidence.create');

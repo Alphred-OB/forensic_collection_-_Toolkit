@@ -207,26 +207,137 @@
                     </table>
                 </div>
             @endif
+        <!-- Interactive Chronological Timeline Visualizer & Event Reconstruction Map -->
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200" x-data="{ timelineFilter: 'all' }">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4 mb-6">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Chronological Investigation Timeline & Event Map
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Reconstruct incident events, evidence collection, custody shifts, and shift notes</p>
+                </div>
+                <!-- Timeline Filter Buttons -->
+                <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs shrink-0 overflow-x-auto">
+                    <button @click="timelineFilter = 'all'" :class="timelineFilter === 'all' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1 rounded-md transition">All Events ({{ $timelineEvents->count() }})</button>
+                    <button @click="timelineFilter = 'case'" :class="timelineFilter === 'case' ? 'bg-white text-blue-700 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1 rounded-md transition">Case</button>
+                    <button @click="timelineFilter = 'evidence'" :class="timelineFilter === 'evidence' ? 'bg-white text-emerald-700 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1 rounded-md transition">Evidence</button>
+                    <button @click="timelineFilter = 'custody'" :class="timelineFilter === 'custody' ? 'bg-white text-indigo-700 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1 rounded-md transition">Custody</button>
+                    <button @click="timelineFilter = 'note'" :class="timelineFilter === 'note' ? 'bg-white text-amber-700 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1 rounded-md transition">Notes</button>
+                </div>
+            </div>
+
+            <!-- Vertical Timeline Axis -->
+            <div class="relative border-l-2 border-slate-200 ml-4 sm:ml-6 space-y-6">
+                @forelse($timelineEvents as $event)
+                    <div x-show="timelineFilter === 'all' || timelineFilter === '{{ $event['category'] }}'" 
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 transform -translate-y-2"
+                         x-transition:enter-end="opacity-100 transform translate-y-0"
+                         class="relative pl-6 sm:pl-8 group">
+                        
+                        <!-- Timeline Node Dot -->
+                        <div class="absolute -left-2.5 top-1.5 w-5 h-5 rounded-full border-2 border-white shadow-xs flex items-center justify-center 
+                            {{ $event['color'] === 'blue' ? 'bg-blue-600' : ($event['color'] === 'emerald' ? 'bg-emerald-600' : ($event['color'] === 'indigo' ? 'bg-indigo-600' : ($event['color'] === 'rose' ? 'bg-rose-600' : ($event['color'] === 'amber' ? 'bg-amber-500' : 'bg-purple-600')))) }}">
+                        </div>
+
+                        <!-- Card Content -->
+                        <div class="p-4 rounded-lg bg-slate-50 border border-slate-200 group-hover:border-slate-300 group-hover:shadow-xs transition">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded tracking-wider
+                                        {{ $event['color'] === 'blue' ? 'bg-blue-100 text-blue-800 border border-blue-200' : ($event['color'] === 'emerald' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($event['color'] === 'indigo' ? 'bg-indigo-100 text-indigo-800 border border-indigo-200' : ($event['color'] === 'rose' ? 'bg-rose-100 text-rose-800 border border-rose-200' : ($event['color'] === 'amber' ? 'bg-amber-100 text-amber-900 border border-amber-200' : 'bg-purple-100 text-purple-800 border border-purple-200')))) }}">
+                                        {{ $event['type_label'] }}
+                                    </span>
+                                    <h4 class="font-bold text-sm text-slate-900">{{ $event['title'] }}</h4>
+                                </div>
+                                <span class="font-mono text-xs text-slate-500 font-semibold">{{ \Carbon\Carbon::parse($event['timestamp'])->format('Y-m-d H:i:s T') }}</span>
+                            </div>
+
+                            <p class="text-xs text-slate-700 leading-relaxed mb-2">{{ $event['description'] }}</p>
+                            
+                            <div class="flex items-center justify-between text-[11px] text-slate-500 border-t border-slate-200/60 pt-2 mt-2">
+                                <span>Recorded by: <strong class="text-slate-800">{{ $event['actor'] }}</strong></span>
+                                <span class="font-mono text-[10px]">{{ \Carbon\Carbon::parse($event['timestamp'])->diffForHumans() }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <p class="text-xs text-slate-500 py-6 text-center">No timeline events recorded yet.</p>
+                @endforelse
+            </div>
         </div>
 
-        <!-- Recent Case Activity Timeline -->
-        <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Case Activity & Audit Trail</h3>
-            @if($activityLogs->isEmpty())
-                <p class="text-xs text-slate-500">No activity logged for this case yet.</p>
-            @else
-                <ul class="divide-y divide-slate-200 text-xs">
-                    @foreach($activityLogs as $log)
-                        <li class="py-2.5 flex justify-between items-center">
+        <!-- Case Activity & Operational Shift Notes (Split Grid) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Operational Shift Notes Thread -->
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+                        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Case Operational Notes</h3>
+                        <span class="text-xs text-slate-500 font-semibold">{{ $case->notes->count() }} Entries</span>
+                    </div>
+
+                    <!-- Add New Shift Note Form -->
+                    @if($case->isEditable() && Auth::user()->role !== 'Reviewer')
+                        <form method="POST" action="{{ route('cases.notes.store', $case->id) }}" class="mb-4">
+                            @csrf
                             <div>
-                                <span class="font-bold text-slate-900">{{ $log->user ? $log->user->name : 'System' }}</span>
-                                <span class="font-mono text-slate-700 uppercase px-2 py-0.5 bg-slate-100 rounded ml-2 border border-slate-200">{{ $log->action_type }}</span>
+                                <textarea name="note" rows="2" required placeholder="Log operational shift note, interview detail, or handover instruction..." class="w-full rounded-md border-slate-300 text-xs focus:border-blue-500 focus:ring-blue-500"></textarea>
                             </div>
-                            <span class="text-slate-500 font-mono">{{ $log->created_at->format('Y-m-d H:i:s') }}</span>
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
+                            <div class="flex items-center justify-between mt-2">
+                                <label class="inline-flex items-center text-xs text-slate-600">
+                                    <input type="checkbox" name="is_pinned" value="1" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                                    <span class="ms-1.5 font-medium">Pin to top of case</span>
+                                </label>
+                                <button type="submit" class="px-3.5 py-1.5 bg-slate-900 text-white rounded-md text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition">
+                                    Post Note
+                                </button>
+                            </div>
+                        </form>
+                    @endif
+
+                    <!-- Notes Thread List -->
+                    <div class="space-y-3 max-h-80 overflow-y-auto">
+                        @forelse($case->notes as $note)
+                            <div class="p-3 rounded-lg border {{ $note->is_pinned ? 'bg-amber-50/70 border-amber-300' : 'bg-slate-50 border-slate-200' }}">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-bold text-xs text-slate-900">{{ $note->user->name }} <span class="text-[10px] text-blue-600 font-semibold">({{ $note->user->role }})</span></span>
+                                    <div class="flex items-center space-x-2 text-[10px] text-slate-500 font-mono">
+                                        @if($note->is_pinned)
+                                            <span class="px-1.5 py-0.5 bg-amber-200 text-amber-900 font-bold uppercase rounded text-[9px]">Pinned</span>
+                                        @endif
+                                        <span>{{ $note->created_at->format('Y-m-d H:i') }}</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">{{ $note->note }}</p>
+                            </div>
+                        @empty
+                            <p class="text-xs text-slate-500 py-4 text-center">No operational shift notes recorded yet.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Case Activity Audit Timeline -->
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-200 pb-3">Case Activity & Audit Trail</h3>
+                @if($activityLogs->isEmpty())
+                    <p class="text-xs text-slate-500">No activity logged for this case yet.</p>
+                @else
+                    <ul class="divide-y divide-slate-200 text-xs">
+                        @foreach($activityLogs as $log)
+                            <li class="py-2.5 flex justify-between items-center">
+                                <div>
+                                    <span class="font-bold text-slate-900">{{ $log->user ? $log->user->name : 'System' }}</span>
+                                    <span class="font-mono text-slate-700 uppercase px-2 py-0.5 bg-slate-100 rounded ml-2 border border-slate-200">{{ $log->action_type }}</span>
+                                </div>
+                                <span class="text-slate-500 font-mono">{{ $log->created_at->format('Y-m-d H:i:s') }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
         </div>
 
         <!-- Manage Team Modal -->

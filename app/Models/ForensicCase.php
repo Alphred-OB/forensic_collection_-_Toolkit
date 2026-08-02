@@ -47,6 +47,11 @@ class ForensicCase extends Model
         return $this->hasMany(Report::class, 'case_id');
     }
 
+    public function notes()
+    {
+        return $this->hasMany(CaseNote::class, 'case_id')->latest();
+    }
+
     public function scopeSearch($query, $search)
     {
         if ($search) {

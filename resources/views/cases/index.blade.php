@@ -1,12 +1,14 @@
 <x-app-layout>
-    <div class="py-6 space-y-6">
-        <!-- Page Title Card inside content -->
-        <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-            <h2 class="font-extrabold text-xl text-slate-900 leading-tight">
+    <x-slot name="header">
+        <div>
+            <h2 class="font-extrabold text-lg text-slate-900 leading-tight">
                 Forensic Cases Management
             </h2>
-            <p class="text-xs text-slate-500 mt-1">Manage digital evidence investigation cases, team assignments, and lifecycle status.</p>
+            <p class="text-xs text-slate-500">Manage digital evidence investigation cases, team assignments, and lifecycle status.</p>
         </div>
+    </x-slot>
+
+    <div class="py-6 space-y-6">
         @if (session('success'))
             <div class="bg-emerald-50 border border-emerald-300 text-emerald-800 px-4 py-3 rounded-lg text-sm font-medium">
                 {{ session('success') }}
@@ -34,10 +36,10 @@
         </div>
 
         <!-- Search & Filter Bar + Page Content Add Button -->
-        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
-            <form method="GET" action="{{ route('cases.index') }}" class="flex flex-1 items-center gap-2 max-w-xl">
-                <input type="text" name="search" value="{{ $search }}" placeholder="Search by Case #, Title, or Tags..." class="w-64 rounded-md border-slate-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
-                <select name="status" class="w-40 rounded-md border-slate-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <form method="GET" action="{{ route('cases.index') }}" class="flex flex-col sm:flex-row flex-1 items-stretch sm:items-center gap-2 max-w-2xl">
+                <input type="text" name="search" value="{{ $search }}" placeholder="Search by Case #, Title, or Tags..." class="w-full sm:w-64 rounded-md border-slate-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                <select name="status" class="w-full sm:w-40 rounded-md border-slate-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                     <option value="">All Statuses</option>
                     <option value="open" {{ $status === 'open' ? 'selected' : '' }}>Open</option>
                     <option value="closed" {{ $status === 'closed' ? 'selected' : '' }}>Closed</option>
@@ -46,14 +48,16 @@
                         <option value="deleted" {{ $status === 'deleted' ? 'selected' : '' }}>Deleted (Soft Deleted)</option>
                     @endif
                 </select>
-                <button type="submit" class="px-3.5 py-2 bg-slate-900 text-white text-xs font-semibold rounded-md hover:bg-slate-800 transition">Filter</button>
-                @if($search || $status)
-                    <a href="{{ route('cases.index') }}" class="px-3 py-2 bg-slate-200 text-slate-700 text-xs font-semibold rounded-md hover:bg-slate-300 transition">Clear</a>
-                @endif
+                <div class="flex items-center gap-2">
+                    <button type="submit" class="flex-1 sm:flex-none px-3.5 py-2 bg-slate-900 text-white text-xs font-semibold rounded-md hover:bg-slate-800 transition text-center">Filter</button>
+                    @if($search || $status)
+                        <a href="{{ route('cases.index') }}" class="flex-1 sm:flex-none px-3 py-2 bg-slate-200 text-slate-700 text-xs font-semibold rounded-md hover:bg-slate-300 transition text-center">Clear</a>
+                    @endif
+                </div>
             </form>
 
             @if(Auth::user()->role !== 'Reviewer')
-                <a href="{{ route('cases.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded-md text-xs font-bold uppercase tracking-wider hover:bg-blue-700 shadow-sm transition">
+                <a href="{{ route('cases.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded-md text-xs font-bold uppercase tracking-wider hover:bg-blue-700 shadow-sm transition text-center shrink-0">
                     + Create New Case
                 </a>
             @endif

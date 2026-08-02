@@ -29,10 +29,10 @@
 
         <!-- Search & Classification Filter -->
         <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
-            <form method="GET" action="{{ route('admin.evidence.index') }}" class="flex flex-col md:flex-row items-center gap-3">
-                <input type="text" name="search" value="{{ $search }}" placeholder="Search by SHA-256 Hash, Evidence #, File Name..." class="w-full md:w-80 rounded-md border-slate-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+            <form method="GET" action="{{ route('admin.evidence.index') }}" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <input type="text" name="search" value="{{ $search }}" placeholder="Search by SHA-256 Hash, Evidence #, File Name..." class="w-full sm:w-80 rounded-md border-slate-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                 
-                <select name="classification" class="w-full md:w-56 rounded-md border-slate-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                <select name="classification" class="w-full sm:w-56 rounded-md border-slate-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                     <option value="">All Classifications</option>
                     <option value="hard_drive_image" {{ $classification === 'hard_drive_image' ? 'selected' : '' }}>Hard Drive Image</option>
                     <option value="memory_dump" {{ $classification === 'memory_dump' ? 'selected' : '' }}>Memory Dump</option>
@@ -42,10 +42,12 @@
                     <option value="other" {{ $classification === 'other' ? 'selected' : '' }}>Other</option>
                 </select>
 
-                <button type="submit" class="px-4 py-2 bg-slate-900 text-white text-xs font-semibold rounded-md hover:bg-slate-800 transition">Filter</button>
-                @if($search || $classification)
-                    <a href="{{ route('admin.evidence.index') }}" class="px-3 py-2 bg-slate-200 text-slate-700 text-xs font-semibold rounded-md hover:bg-slate-300 transition">Clear</a>
-                @endif
+                <div class="flex items-center gap-2">
+                    <button type="submit" class="flex-1 sm:flex-none px-4 py-2 bg-slate-900 text-white text-xs font-semibold rounded-md hover:bg-slate-800 transition text-center">Filter</button>
+                    @if($search || $classification)
+                        <a href="{{ route('admin.evidence.index') }}" class="flex-1 sm:flex-none px-3 py-2 bg-slate-200 text-slate-700 text-xs font-semibold rounded-md hover:bg-slate-300 transition text-center">Clear</a>
+                    @endif
+                </div>
             </form>
         </div>
 
