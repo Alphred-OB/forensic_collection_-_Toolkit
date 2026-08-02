@@ -140,10 +140,7 @@ Key screenshots of the system in use, from [`docs/screenshots`](docs/screenshots
 **Two-Factor Authentication**
 ![Two-factor authentication setup](docs/screenshots/2FA.png)
 
-**Dashboard — Case Status, Evidence Classification, and Audit Velocity charts**
-![Dashboard](docs/screenshots/dashboard.png)
-
-**Case Repository**
+**Case Repository** (also the default landing dashboard at `/dashboard`)
 ![Case repository listing](docs/screenshots/case_repo.png)
 
 **Case Details — timeline and event map**
@@ -158,7 +155,7 @@ Key screenshots of the system in use, from [`docs/screenshots`](docs/screenshots
 **Audit Log — tamper-evident hash-chained trail**
 ![Audit log](docs/screenshots/audit_log.png)
 
-**Admin Dashboard**
+**Admin Dashboard — Case Status, Evidence Classification, and Audit Velocity charts**
 ![Admin dashboard](docs/screenshots/admin_dashboard.png)
 
 **Role Management**
