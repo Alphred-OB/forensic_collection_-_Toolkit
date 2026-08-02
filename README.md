@@ -181,4 +181,5 @@ php artisan test
 
 ## License
 
-This project is open-source software licensed under the MIT license.
+This project was developed as an academic submission for CY376: Network Monitoring, Security
+and Auditing. It is not licensed for reuse, redistribution, or production deployment.
