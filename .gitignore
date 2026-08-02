@@ -17,6 +17,3 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
-
-# Personal working notes - never push
-/PROJECT_REPORT_NOTES.md
