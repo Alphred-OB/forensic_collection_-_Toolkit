@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\AuthorizesCaseAccess;
 use App\Models\AuditLog;
 use App\Models\CaseAssignment;
 use App\Models\ForensicCase;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\Auth;
 
 class CaseController extends Controller
 {
+    use AuthorizesCaseAccess;
+
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -374,15 +377,4 @@ class CaseController extends Controller
         }
     }
 
-    private function authorizeCaseAccess(ForensicCase $case)
-    {
-        $user = Auth::user();
-        if (in_array($user->role, ['Administrator', 'Reviewer'])) {
-            return;
-        }
-
-        if (!$case->assignedUsers->contains($user->id)) {
-            abort(403, 'Access denied. You are not assigned to this case.');
-        }
-    }
 }
