@@ -27,6 +27,10 @@ class CustodyController extends Controller
     {
         $evidence = EvidenceItem::findOrFail($evidenceId);
 
+        if ($evidence->current_custodian_id !== Auth::id() && Auth::user()->role !== 'Administrator') {
+            abort(403, 'Only the current custodian can transfer evidence.');
+        }
+
         $request->validate([
             'to_user_id' => 'required|exists:users,id',
             'reason' => 'required|string',
