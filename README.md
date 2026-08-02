@@ -1,66 +1,141 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Digital Forensic Evidence Vault and Case Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Overview
 
-## About Laravel
+The **Digital Forensic Evidence Vault and Case Management System** is an enterprise-grade platform built using PHP and the Laravel framework. It provides digital forensics investigators, incident responders, and security administrators with a secure environment to manage forensic cases, store digital evidence, maintain strict chain-of-custody tracking, and perform integrity auditing.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The system ensures that digital evidence remains tamper-evident and legally defensible throughout its lifecycle.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Core Features
 
-## Learning Laravel
+- **Forensic Case Management**: Create, assign, update, and archive investigative cases with detailed metadata, priorities, status workflows, and team assignments.
+- **Evidence Management**: Secure upload and cataloging of digital evidence with automated cryptographic hashing (SHA-256 / MD5) calculated upon upload to ensure data integrity.
+- **Chain of Custody (CoC) Tracking**: Verifiable chain-of-custody transfer logging. Transfers must be accepted or rejected by recipient custodians, preventing unauthorized evidence movement.
+- **Audit Logging and System Scans**: Automatic recording of critical events (file access, user authentication, evidence transfers, administrative actions). Includes system integrity scanner tools and CSV audit report exports.
+- **Reporting Engine**: Automated generation of official Chain of Custody reports and comprehensive Final Case Reports.
+- **Batch Export**: Export case evidence packages as encrypted/structured batch ZIP archives for court presentation or external analysis.
+- **Security and Access Control**: Role-based access control (RBAC), multi-factor authentication (2FA) support, and administrative security settings.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Prerequisites
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **PHP**: ^8.2
+- **Composer**: Dependency manager for PHP
+- **Node.js & NPM**: Asset compilation
+- **Database**: MySQL, PostgreSQL, or SQLite
+- **Web Server**: Apache / Nginx / XAMPP
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Installation and Setup
 
-### Premium Partners
+1. **Clone the Repository**:
+   ```bash
+   git clone <repository-url>
+   cd forensic_toolkit
+   ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+2. **Install PHP and Node Dependencies**:
+   ```bash
+   composer install
+   npm install
+   ```
 
-## Contributing
+3. **Configure Environment File**:
+   Copy `.env.example` to `.env` and set your configuration details.
+   ```bash
+   cp .env.example .env
+   ```
+   Update database credentials and storage pathways in `.env`.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+4. **Generate Application Key**:
+   ```bash
+   php artisan key:generate
+   ```
 
-## Code of Conduct
+5. **Run Database Migrations and Seeders**:
+   ```bash
+   php artisan migrate --seed
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+6. **Compile Frontend Assets**:
+   ```bash
+   npm run dev
+   ```
 
-## Security Vulnerabilities
+7. **Serve Application**:
+   ```bash
+   php artisan serve
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
+
+## Git Workflow and Branching Strategy
+
+To maintain codebase integrity, code quality, and proper audit history, all contributions must follow a structured feature-branch workflow.
+
+### Primary Branches
+
+- `main`: Represents production-ready code. Direct commits to `main` are strictly prohibited.
+
+### Development Workflow
+
+1. **Fetch Latest Main Branch**:
+   Always start by pulling the latest changes from `main`.
+   ```bash
+   git checkout main
+   git pull origin main
+   ```
+
+2. **Create a Feature or Fix Branch**:
+   Name your branch according to the type of work being performed:
+   - `feature/feature-name` (e.g., `feature/evidence-hash-verification`)
+   - `fix/bug-description` (e.g., `fix/coc-pdf-generation`)
+   - `chore/task-name` (e.g., `chore/update-readme`)
+
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+3. **Develop and Commit Changes**:
+   Make clear, atomic commits with descriptive commit messages following standard conventions.
+   ```bash
+   git add .
+   git commit -m "feat: add hash verification endpoint for evidence items"
+   ```
+
+4. **Run Verification and Tests**:
+   Ensure all static analysis checks, code formatting rules, and automated tests pass before pushing.
+   ```bash
+   vendor/bin/phpunit
+   ```
+
+5. **Push Branch to Remote Repository**:
+   ```bash
+   git push -u origin feature/your-feature-name
+   ```
+
+6. **Submit a Pull Request (PR)**:
+   - Open a Pull Request from your feature branch targeting `main`.
+   - Provide a clear summary of changes, motivation, and test steps in the PR description.
+   - Assign relevant team members for code review.
+   - Merge into `main` only after receiving necessary approvals and ensuring continuous integration checks pass.
+
+---
+
+## Testing and Quality Assurance
+
+Run the PHPUnit test suite to verify application functionality:
+
+```bash
+php artisan test
+```
+
+---
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-source software licensed under the MIT license.
