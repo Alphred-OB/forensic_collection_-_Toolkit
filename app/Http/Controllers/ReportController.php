@@ -2,19 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\AuthorizesCaseAccess;
 use App\Models\EvidenceItem;
 use App\Models\ForensicCase;
 use App\Models\Report;
 use App\Services\AuditLoggerService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class ReportController extends Controller
 {
+    use AuthorizesCaseAccess;
+
     public function generateCoCReport($evidenceId)
     {
         $evidence = EvidenceItem::with(['case', 'uploader', 'currentCustodian', 'transfers.fromUser', 'transfers.toUser'])->findOrFail($evidenceId);
-        
+        $this->authorizeCaseAccess($evidence->case);
+
         $timestamp = now()->toIso8601String();
         $manifestData = sprintf(
             'EVIDENCE:%s|HASH:%s|CUSTODIAN:%s|GEN_BY:%s|TIME:%s',
@@ -27,11 +32,12 @@ class ReportController extends Controller
         
         $manifestHash = hash('sha256', $manifestData);
 
-        $reportContent = view('reports.coc_pdf', compact('evidence', 'manifestHash', 'timestamp'))->render();
-        $fileName = 'CoC_Report_' . $evidence->evidence_number . '_' . time() . '.html';
+        $pdf = Pdf::loadView('reports.coc_pdf', compact('evidence', 'manifestHash', 'timestamp'))
+            ->setPaper('a4');
+        $fileName = 'CoC_Report_' . $evidence->evidence_number . '_' . time() . '.pdf';
         $filePath = 'reports/' . $fileName;
 
-        Storage::disk('local')->put($filePath, $reportContent);
+        Storage::disk('local')->put($filePath, $pdf->output());
 
         $report = Report::create([
             'case_id' => $evidence->case_id,
@@ -48,9 +54,7 @@ class ReportController extends Controller
             'manifest_hash' => $manifestHash,
         ]);
 
-        return response()->streamDownload(function () use ($reportContent) {
-            echo $reportContent;
-        }, $fileName);
+        return $pdf->download($fileName);
     }
 
     public function generateCaseFinalReport($caseId)
@@ -63,6 +67,7 @@ class ReportController extends Controller
             'evidenceItems.transfers.fromUser',
             'evidenceItems.transfers.toUser'
         ])->findOrFail($caseId);
+        $this->authorizeCaseAccess($case);
 
         $activityLogs = \App\Models\AuditLog::with('user')
             ->where(function ($q) use ($case) {
@@ -82,11 +87,12 @@ class ReportController extends Controller
         );
         $manifestHash = hash('sha256', $manifestData);
 
-        $reportContent = view('reports.case_final_pdf', compact('case', 'activityLogs', 'manifestHash', 'timestamp'))->render();
-        $fileName = 'Final_Case_Report_' . $case->case_number . '_' . time() . '.html';
+        $pdf = Pdf::loadView('reports.case_final_pdf', compact('case', 'activityLogs', 'manifestHash', 'timestamp'))
+            ->setPaper('a4');
+        $fileName = 'Final_Case_Report_' . $case->case_number . '_' . time() . '.pdf';
         $filePath = 'reports/' . $fileName;
 
-        Storage::disk('local')->put($filePath, $reportContent);
+        Storage::disk('local')->put($filePath, $pdf->output());
 
         $report = Report::create([
             'case_id' => $case->id,
@@ -103,9 +109,6 @@ class ReportController extends Controller
             'manifest_hash' => $manifestHash,
         ]);
 
-        return response($reportContent, 200, [
-            'Content-Type' => 'text/html',
-            'Content-Disposition' => 'inline; filename="' . $fileName . '"',
-        ]);
+        return $pdf->download($fileName);
     }
 }
